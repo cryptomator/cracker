@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.cryptomator</groupId>
+    <artifactId>cracker</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <description>This library provides the Java filesystem provider used by Cryptomator.</description>
+    <url>https://github.com/cryptomator/cracker</url>
+
+    <organization>
+        <name>cryptomator.org</name>
+        <url>https://cryptomator.org</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:git@github.com:cryptomator/cracker.git</connection>
+        <developerConnection>scm:git:git@github.com:cryptomator/cracker.git</developerConnection>
+        <url>git@github.com:cryptomator/cracker.git</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License (AGPL) version 3.0</name>
+            <url>https://www.gnu.org/licenses/agpl.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.cryptomator</groupId>
+            <artifactId>cryptolib</artifactId>
+            <version>2.0.0-rc3</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.cryptomator.cracker.Cracker</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.nativeimage</groupId>
+                <artifactId>native-image-maven-plugin</artifactId>
+                <version>21.1.0</version>
+                <configuration>
+                    <mainClass>org.cryptomator.cracker.Cracker</mainClass>
+                    <imageName>cracker</imageName>
+                    <buildArgs>
+                        --no-fallback
+                    </buildArgs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>native-image</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
