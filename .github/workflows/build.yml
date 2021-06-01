@@ -20,16 +20,6 @@ jobs:
       - name: Ensure to use tagged version
         if: startsWith(github.ref, 'refs/tags/')
         run: mvn versions:set --file ./pom.xml -DnewVersion=${GITHUB_REF##*/}
-      - name: Set version
-        id: setversion
-        run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            echo "BUILD_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
-            echo "::set-output name=version::${GITHUB_REF##*/}"
-          else
-            echo "BUILD_VERSION=SNAPSHOT" >> $GITHUB_ENV
-            echo "::set-output name=version::SNAPSHOT"
-          fi
       - name: Build
         id: build
         run: mvn -B clean package
@@ -38,8 +28,7 @@ jobs:
         with:
           name: jars
           path: |
-            target/cracker-${{ env.BUILD_VERSION }}.jar
-            target/cracker-${{ env.BUILD_VERSION }}-fat.jar
+            target/cracker-*.jar
           if-no-files-found: error
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -47,12 +36,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CRYPTOBOT_RELEASE_TOKEN }} # release as "cryptobot"
         with:
-          tag_name: ${{ env.BUILD_VERSION }}
-          release_name: ${{ env.BUILD_VERSION }}
           body: |
             :construction: Work in Progress
           draft: true
           prerelease: false
           files: |
-            target/cracker-${{ env.BUILD_VERSION }}.jar
-            target/cracker-${{ env.BUILD_VERSION }}-fat.jar
+            target/cracker-*.jar
