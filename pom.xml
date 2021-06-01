@@ -62,6 +62,8 @@
                             <mainClass>org.cryptomator.cracker.Cracker</mainClass>
                         </manifest>
                     </archive>
+                    <finalName>${project.build.finalName}-fat</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
@@ -73,27 +75,37 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.graalvm.nativeimage</groupId>
-                <artifactId>native-image-maven-plugin</artifactId>
-                <version>21.1.0</version>
-                <configuration>
-                    <mainClass>org.cryptomator.cracker.Cracker</mainClass>
-                    <imageName>cracker</imageName>
-                    <buildArgs>
-                        --no-fallback
-                    </buildArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>native-image</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>graalvm</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.nativeimage</groupId>
+                        <artifactId>native-image-maven-plugin</artifactId>
+                        <version>21.1.0</version>
+                        <configuration>
+                            <mainClass>org.cryptomator.cracker.Cracker</mainClass>
+                            <imageName>cracker</imageName>
+                            <buildArgs>
+                                --no-fallback
+                            </buildArgs>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>native-image</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

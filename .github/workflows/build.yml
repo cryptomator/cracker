@@ -1,0 +1,58 @@
+name: Build
+on:
+  [push]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Ensure to use tagged version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: mvn versions:set --file ./pom.xml -DnewVersion=${GITHUB_REF##*/}
+      - name: Set version
+        id: setversion
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "BUILD_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+            echo "::set-output name=version::${GITHUB_REF##*/}"
+          else
+            echo "BUILD_VERSION=SNAPSHOT" >> $GITHUB_ENV
+            echo "::set-output name=version::SNAPSHOT"
+          fi
+      - name: Build
+        id: build
+        run: mvn -B clean package
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: jars
+          path: |
+            target/cracker-${{ env.BUILD_VERSION }}.jar
+            target/cracker-${{ env.BUILD_VERSION }}-fat.jar
+          if-no-files-found: error
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.CRYPTOBOT_RELEASE_TOKEN }} # release as "cryptobot"
+        with:
+          tag_name: ${{ env.BUILD_VERSION }}
+          release_name: ${{ env.BUILD_VERSION }}
+          body: |
+            :construction: Work in Progress
+          draft: true
+          prerelease: false
+          files: |
+            target/cracker-${{ env.BUILD_VERSION }}.jar
+            target/cracker-${{ env.BUILD_VERSION }}-fat.jar
