@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cryptomator</groupId>
     <artifactId>cracker</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.1</version>
     <description>This library provides the Java filesystem provider used by Cryptomator.</description>
     <url>https://github.com/cryptomator/cracker</url>
 
