@@ -1,10 +1,10 @@
 package org.cryptomator.cracker;
 
 import org.cryptomator.cryptolib.common.AesKeyWrap;
+import org.cryptomator.cryptolib.common.DestroyableSecretKey;
 import org.cryptomator.cryptolib.common.MasterkeyFile;
 import org.cryptomator.cryptolib.common.Scrypt;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,9 +51,10 @@ public class Cracker implements Runnable {
 	private boolean tryUnlock(String pw) {
 		try {
 			byte[] kekBytes = Scrypt.scrypt(pw, mk.scryptSalt, mk.scryptCostParam, mk.scryptBlockSize, 32);
-			var kek = new SecretKeySpec(kekBytes, "AES");
-			AesKeyWrap.unwrap(kek, mk.macMasterKey, "HmacSHA256");
-			return true;
+			try (var kek = new DestroyableSecretKey(kekBytes, "AES")) {
+				AesKeyWrap.unwrap(kek, mk.macMasterKey, "HmacSHA256");
+				return true;
+			}
 		} catch (InvalidKeyException e) {
 			return false;
 		}
