@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - uses: actions/setup-java@0f62d2ad8407a414cddd4790bed06fd9ebda0f56 # v1.4.5
         with:
           java-version: 11
-      - uses: actions/cache@v2
+      - uses: actions/cache@8492260343ad570701412c2f464a5877dc76bace # v2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -26,14 +26,14 @@ jobs:
         id: build
         run: mvn -B clean package
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
         with:
           name: jars
           path: |
             target/cracker-*.jar
           if-no-files-found: error
       - name: Upload artifacts
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # v2.11.5
         if: startsWith(github.ref, 'refs/tags/')
         with:
           body: |
@@ -68,18 +68,18 @@ jobs:
     steps:
       - name: Setup Graalvm
         id: setup-graalvm
-        uses: DeLaGuardo/setup-graalvm@master
+        uses: DeLaGuardo/setup-graalvm@e56ed886ba954c76a2029a76a345536524f5994a # master (2023-04-17)
         with:
           graalvm: '21.1.0'
           java: 'java11'
           arch: 'amd64'
-      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         if: ${{ matrix.os == 'windows-latest' }}
       - name: Install native-image component
         run: |
           ${{ matrix.gu-binary }} install native-image
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - uses: actions/cache@8492260343ad570701412c2f464a5877dc76bace # v2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-graalvm-${{ hashFiles('**/pom.xml') }}
@@ -94,7 +94,7 @@ jobs:
         id: build
         run: mvn -B clean package -Pgraalvm
       - name: Upload artifacts
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # v2.11.5
         with:
           prerelease: true
           repo_token: ${{ secrets.CRYPTOBOT_RELEASE_TOKEN }}
